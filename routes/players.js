@@ -120,19 +120,12 @@ router.get("/appearance", async (req, res) => {
   }
 });
 
-// GET player data by name
-router.get("/", async (req, res) => {
-  const { name } = req.query;
-
-  if (!name) {
-    return res.status(400).json({ message: "Missing 'name' query parameter" });
-  }
+// GET player by name
+router.get("/:name", async (req, res) => {
+  const { name } = req.params;
 
   try {
-    const result = await pool.query(
-      "SELECT name, level, money, mesh, material, pistol, rifle, shotgun, knife FROM Players WHERE name = $1",
-      [name]
-    );
+    const result = await pool.query("SELECT name, level, money, mesh, material, pistol, rifle, shotgun, knife FROM Players WHERE name = $1", [name]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ message: "Player not found" });
@@ -141,7 +134,7 @@ router.get("/", async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error fetching appearance");
+    res.status(500).json({ message: "Failed to fetch player data" });
   }
 });
 
