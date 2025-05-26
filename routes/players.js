@@ -23,11 +23,11 @@ router.post("/register", async (req, res) => {
     const defaultPlayer = {
       level: 1,
       money: 0,
-      mesh: "default_mesh",
-      material: "default_material",
-      pistol: null,
-      rifle: null,
-      shotgun: null,
+      mesh: "CyberPunk",
+      material: "01_A",
+      pistol: 1,
+      rifle: 1,
+      shotgun: 1,
     };
 
     // Insert new player
