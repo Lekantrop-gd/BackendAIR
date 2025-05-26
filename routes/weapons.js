@@ -35,4 +35,15 @@ router.get("/shotguns", async (req, res) => {
   }
 });
 
+// GET all knives
+router.get("/knives", async (req, res) => {
+  try {
+    const knives = await pool.query("SELECT * FROM Knife");
+    res.json(knives.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to load knives" });
+  }
+});
+
 module.exports = router;
