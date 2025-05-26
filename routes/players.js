@@ -95,5 +95,30 @@ router.put("/updateAppearance", async (req, res) => {
   }
 });
 
+// GET player appearance by name
+router.get("/appearance", async (req, res) => {
+  const { name } = req.query;
+
+  if (!name) {
+    return res.status(400).json({ message: "Missing 'name' query parameter" });
+  }
+
+  try {
+    const result = await pool.query(
+      "SELECT mesh, material FROM Players WHERE name = $1",
+      [name]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Player not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error fetching appearance");
+  }
+});
+
 
 module.exports = router;
