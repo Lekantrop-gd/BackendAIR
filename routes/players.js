@@ -5,6 +5,7 @@ const pool = require("../db");
 
 // REGISTER
 router.post("/register", async (req, res) => {
+  console.log("Incoming req.body:", req.body); // Add this line
   const { name, password } = req.body;
 
   try {
