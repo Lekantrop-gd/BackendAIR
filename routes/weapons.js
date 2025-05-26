@@ -2,21 +2,36 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db");
 
-// Get all weapons (from all 3 tables)
-router.get("/", async (req, res) => {
+// GET all pistols
+router.get("/pistols", async (req, res) => {
   try {
     const pistols = await pool.query("SELECT * FROM Pistol");
-    const rifles = await pool.query("SELECT * FROM Rifle");
-    const shotguns = await pool.query("SELECT * FROM Shotgun");
-
-    res.json({
-      pistols: pistols.rows,
-      rifles: rifles.rows,
-      shotguns: shotguns.rows,
-    });
+    res.json(pistols.rows);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    console.error(err);
+    res.status(500).json({ message: "Failed to load pistols" });
+  }
+});
+
+// GET all rifles
+router.get("/rifles", async (req, res) => {
+  try {
+    const rifles = await pool.query("SELECT * FROM Rifle");
+    res.json(rifles.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to load rifles" });
+  }
+});
+
+// GET all shotguns
+router.get("/shotguns", async (req, res) => {
+  try {
+    const shotguns = await pool.query("SELECT * FROM Shotgun");
+    res.json(shotguns.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to load shotguns" });
   }
 });
 
