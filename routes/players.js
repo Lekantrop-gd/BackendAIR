@@ -70,4 +70,30 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// Update mesh and material
+router.put("/updateAppearance", async (req, res) => {
+  const { name, mesh, material } = req.body;
+
+  if (!name || !mesh || !material) {
+    return res.status(400).json({ message: "Missing fields" });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE Players SET mesh = $1, material = $2 WHERE name = $3 RETURNING name, mesh, material`,
+      [mesh, material, name]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Player not found" });
+    }
+
+    res.json({ message: "Appearance updated", player: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Update error");
+  }
+});
+
+
 module.exports = router;
