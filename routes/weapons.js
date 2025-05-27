@@ -202,4 +202,52 @@ router.post("/shotguns", async (req, res) => {
   }
 });
 
+// POST knives
+router.post("/knives", async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { items } = req.body;
+
+    if (!items || !Array.isArray(items)) {
+      return res.status(400).json({ message: "Invalid data format" });
+    }
+
+    await client.query("BEGIN");
+
+    for (const knife of items) {
+      const {
+        id,
+        level,
+        power,
+        range,
+        speed,
+        price,
+      } = knife;
+
+      await client.query(
+        `INSERT INTO Knife (id, level, power, range, speed, price)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        ON CONFLICT (id)
+        DO UPDATE SET
+          level = EXCLUDED.level,
+          power = EXCLUDED.power,
+          range = EXCLUDED.range,
+          speed = EXCLUDED.speed,
+          price = EXCLUDED.price`,
+        [id, level, power, range, speed, price]
+      );
+    }
+
+    await client.query("COMMIT");
+    res.status(200).json({ message: "Knives upserted successfully" });
+
+  } catch (err) {
+    await client.query("ROLLBACK");
+    console.error(err);
+    res.status(500).json({ message: "Failed to save knives" });
+  } finally {
+    client.release();
+  }
+});
+
 module.exports = router;
