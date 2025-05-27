@@ -58,9 +58,6 @@ router.post("/pistols", async (req, res) => {
 
     await client.query("BEGIN");
 
-    // Optional: Clear the table before inserting if needed
-    await client.query("DELETE FROM Pistol");
-
     for (const pistol of items) {
       const {
         id,
@@ -75,13 +72,23 @@ router.post("/pistols", async (req, res) => {
 
       await client.query(
         `INSERT INTO Pistol (id, level, power, accuracy, reloadspeed, firerate, magazine, price)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        ON CONFLICT (id)
+        DO UPDATE SET
+          level = EXCLUDED.level,
+          power = EXCLUDED.power,
+          accuracy = EXCLUDED.accuracy,
+          reloadspeed = EXCLUDED.reloadspeed,
+          firerate = EXCLUDED.firerate,
+          magazine = EXCLUDED.magazine,
+          price = EXCLUDED.price`,
         [id, level, power, accuracy, reloadspeed, firerate, magazine, price]
       );
     }
 
     await client.query("COMMIT");
-    res.status(200).json({ message: "Pistols saved successfully" });
+    res.status(200).json({ message: "Pistols upserted successfully" });
+
   } catch (err) {
     await client.query("ROLLBACK");
     console.error(err);
