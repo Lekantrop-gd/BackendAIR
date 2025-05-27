@@ -46,4 +46,50 @@ router.get("/knives", async (req, res) => {
   }
 });
 
+// POST pistols
+router.post("/pistols", async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { items } = req.body;
+
+    if (!items || !Array.isArray(items)) {
+      return res.status(400).json({ message: "Invalid data format" });
+    }
+
+    await client.query("BEGIN");
+
+    // Optional: Clear the table before inserting if needed
+    await client.query("DELETE FROM Pistol");
+
+    for (const pistol of items) {
+      const {
+        id,
+        level,
+        power,
+        accuracy,
+        reloadspeed,
+        firerate,
+        magazine,
+        price,
+      } = pistol;
+
+      await client.query(
+        `INSERT INTO Pistol (id, level, power, accuracy, reloadspeed, firerate, magazine, price)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [id, level, power, accuracy, reloadspeed, firerate, magazine, price]
+      );
+    }
+
+    await client.query("COMMIT");
+    res.status(200).json({ message: "Pistols saved successfully" });
+  } catch (err) {
+    await client.query("ROLLBACK");
+    console.error(err);
+    res.status(500).json({ message: "Failed to save pistols" });
+  } finally {
+    client.release();
+  }
+});
+
+
 module.exports = router;
