@@ -98,5 +98,108 @@ router.post("/pistols", async (req, res) => {
   }
 });
 
+// POST rifles
+router.post("/rifles", async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { items } = req.body;
+
+    if (!items || !Array.isArray(items)) {
+      return res.status(400).json({ message: "Invalid data format" });
+    }
+
+    await client.query("BEGIN");
+
+    for (const rifle of items) {
+      const {
+        id,
+        level,
+        power,
+        accuracy,
+        reloadspeed,
+        firerate,
+        magazine,
+        price,
+      } = rifle;
+
+      await client.query(
+        `INSERT INTO Rifle (id, level, power, accuracy, reloadspeed, firerate, magazine, price)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        ON CONFLICT (id)
+        DO UPDATE SET
+          level = EXCLUDED.level,
+          power = EXCLUDED.power,
+          accuracy = EXCLUDED.accuracy,
+          reloadspeed = EXCLUDED.reloadspeed,
+          firerate = EXCLUDED.firerate,
+          magazine = EXCLUDED.magazine,
+          price = EXCLUDED.price`,
+        [id, level, power, accuracy, reloadspeed, firerate, magazine, price]
+      );
+    }
+
+    await client.query("COMMIT");
+    res.status(200).json({ message: "Rifles upserted successfully" });
+
+  } catch (err) {
+    await client.query("ROLLBACK");
+    console.error(err);
+    res.status(500).json({ message: "Failed to save Rifles" });
+  } finally {
+    client.release();
+  }
+});
+
+// POST shotguns
+router.post("/shotguns", async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { items } = req.body;
+
+    if (!items || !Array.isArray(items)) {
+      return res.status(400).json({ message: "Invalid data format" });
+    }
+
+    await client.query("BEGIN");
+
+    for (const shotgun of items) {
+      const {
+        id,
+        level,
+        power,
+        accuracy,
+        reloadspeed,
+        firerate,
+        magazine,
+        price,
+      } = shotgun;
+
+      await client.query(
+        `INSERT INTO Shotgun (id, level, power, accuracy, reloadspeed, firerate, magazine, price)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        ON CONFLICT (id)
+        DO UPDATE SET
+          level = EXCLUDED.level,
+          power = EXCLUDED.power,
+          accuracy = EXCLUDED.accuracy,
+          reloadspeed = EXCLUDED.reloadspeed,
+          firerate = EXCLUDED.firerate,
+          magazine = EXCLUDED.magazine,
+          price = EXCLUDED.price`,
+        [id, level, power, accuracy, reloadspeed, firerate, magazine, price]
+      );
+    }
+
+    await client.query("COMMIT");
+    res.status(200).json({ message: "Shotguns upserted successfully" });
+
+  } catch (err) {
+    await client.query("ROLLBACK");
+    console.error(err);
+    res.status(500).json({ message: "Failed to save shotguns" });
+  } finally {
+    client.release();
+  }
+});
 
 module.exports = router;
