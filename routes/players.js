@@ -152,64 +152,30 @@ router.put("/updateMoney", async (req, res) => {
   }
 });
 
-//#region Weapons Updating
+const validWeapons = ['pistol', 'rifle', 'shotgun', 'knife'];
 
-// Update player pistol
-router.put("/updatePistol", async (req, res) => {
-  const { name, pistol } = req.body;
-  if (!name || pistol === undefined) return res.status(400).json({ message: "Missing fields" });
+// Update player weapon
+router.put("/updateWeapon/:weaponType", async (req, res) => {
+  const { weaponType } = req.params;
+  const { name } = req.body;
+  const level = req.body[weaponType];
+
+  if (!validWeapons.includes(weaponType)) {
+    return res.status(400).json({ message: "Invalid weapon type" });
+  }
+
+  if (!name || level === undefined) {
+    return res.status(400).json({ message: "Missing player name or weapon level" });
+  }
 
   try {
-    await pool.query("UPDATE Players SET pistol = $1 WHERE name = $2", [pistol, name]);
-    res.json({ message: "Pistol updated successfully" });
+    const query = `UPDATE Players SET ${weaponType} = $1 WHERE name = $2`;
+    await pool.query(query, [level, name]);
+    res.json({ message: `${weaponType} level updated successfully` });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Failed to update pistol" });
+    res.status(500).json({ message: `Failed to update ${weaponType} level` });
   }
 });
-
-// Update player rifle
-router.put("/updateRifle", async (req, res) => {
-  const { name, rifle } = req.body;
-  if (!name || rifle === undefined) return res.status(400).json({ message: "Missing fields" });
-
-  try {
-    await pool.query("UPDATE Players SET rifle = $1 WHERE name = $2", [rifle, name]);
-    res.json({ message: "Rifle updated successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to update rifle" });
-  }
-});
-
-// Update player shotgun
-router.put("/updateShotgun", async (req, res) => {
-  const { name, shotgun } = req.body;
-  if (!name || shotgun === undefined) return res.status(400).json({ message: "Missing fields" });
-
-  try {
-    await pool.query("UPDATE Players SET shotgun = $1 WHERE name = $2", [shotgun, name]);
-    res.json({ message: "Shotgun updated successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to update shotgun" });
-  }
-});
-
-// Update player knife
-router.put("/updateKnife", async (req, res) => {
-  const { name, knife } = req.body;
-  if (!name || knife === undefined) return res.status(400).json({ message: "Missing fields" });
-
-  try {
-    await pool.query("UPDATE Players SET knife = $1 WHERE name = $2", [knife, name]);
-    res.json({ message: "Knife updated successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to update knife" });
-  }
-});
-
-//#endregion
 
 module.exports = router;
